@@ -1,0 +1,1 @@
+com.orange.resourcehotfix:layout/activity_main = 0x7f050000

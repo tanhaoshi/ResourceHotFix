@@ -1,0 +1,77 @@
+import org.gradle.util.GFileUtils
+
+import java.util.regex.Matcher
+
+apply plugin: PublicPlugin
+
+    class PublicPlugin implements Plugin<Project> {
+        void apply(Project project) {
+            project.afterEvaluate {
+                if (project.plugins.hasPlugin("com.android.application")) {
+                    def android = project.extensions.getByName("android")
+                    def aaptOptions = android.aaptOptions
+                    android.applicationVariants.all {def variant ->
+                        project.logger.error "xxxxx ${variant.name.capitalize()}"
+    //       def processResourcesTask = project.tasks.getByName("process${variant.name.capitalize()}Resources")
+                        project.logger.error "xxxxx ${aaptOptions}"
+                        if (aaptOptions) {
+    //                        def aaptOptions = processResourcesTask.aaptOptions
+                            File publicTxtFile = project.rootProject.file('generate_public.txt')
+                            //public文件存在，则应用，不存在则生成
+                            if (publicTxtFile.exists()) {
+                                project.logger.error "${publicTxtFile} exists, apply it."
+                                //aapt2添加--stable-ids参数应用
+                                aaptOptions.additionalParameters("--stable-ids", "${publicTxtFile}")
+                            } else {
+                                project.logger.info "${publicTxtFile} not exists, generate it."
+                                //aapt2添加--emit-ids参数生成
+                                aaptOptions.additionalParameters("--emit-ids", "${publicTxtFile}")
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    task convertPublicXmlToPublicTxt(){
+
+        project.logger.error "start convertPublicXmlToPublicTxt"
+    //源public.xml
+        File publicXmlFile = project.rootProject.file('app/src/main/res/values/public.xml')
+    //目标public.txt
+        File publicTxtFile = project.rootProject.file('generate_public.txt')
+    //包名
+        String applicationId = "com.orange.resourcehotfix"
+        GFileUtils.deleteQuietly(publicTxtFile)
+        GFileUtils.touch(publicTxtFile)
+        def nodes = new XmlParser().parse(publicXmlFile)
+    //        Pattern drawableGeneratePattern = Pattern.compile('^(.*?_)([0-9]{0,})$')
+        nodes.each {
+            project.logger.error "${it}"
+    /*            if ("drawable".equalsIgnoreCase("${it.@type}")) {
+    //以'_数字'结尾的drawable资源，此类资源是aapt编译时生成的nested资源，如avd_hide_password_1, avd_hide_password_2
+    //但是可能会有其他资源掺杂，如abc_btn_check_to_on_mtrl_000, abc_btn_check_to_on_mtrl_015
+    //为了将此类资源过滤掉，将正则匹配到的数字转成int，对比原始数字部分匹配字符串，如果一致，则是aapt生成
+    //重要：为了避免此类nested资源生成顺序发生改变，应该禁止修改此类资源
+    //aapt生成的是以下表1开始，aapt2是以下标0开始，因此转换的过程需要-1
+                    Matcher matcher = drawableGeneratePattern.matcher(it.@name)
+                    if (matcher.matches() && matcher.groupCount() == 2) {
+                        String number = matcher.group(2)
+                        if (number.equalsIgnoreCase(Integer.parseInt(number).toString())) {
+                            String prefixName = matcher.group(1)
+                            publicTxtFile.append("${applicationId}:${it.@type}/\$${prefixName}_${Integer.parseInt(number) - 1} = ${it.@id}\n")
+                            return
+                        }
+                    }
+                }*/
+            publicTxtFile.append("${applicationId}:${it.@type}/${it.@name} = ${it.@id}\n")
+        }
+        doFirst{
+            project.logger.error 'convertPublicXmlToPublicTxt doFirst'
+        }
+        doLast {
+            project.logger.error 'convertPublicXmlToPublicTxt doLast'
+        }
+    }
