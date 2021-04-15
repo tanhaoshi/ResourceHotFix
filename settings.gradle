@@ -1,2 +1,1 @@
-include ':app', ':hotfix'
-rootProject.name='ResourceHotFix'
+include ':app', ':hotfix', ':sitesign_master', ':hack', ':buildSrc'

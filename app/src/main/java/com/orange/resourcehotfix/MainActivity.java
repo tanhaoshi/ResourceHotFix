@@ -3,6 +3,14 @@ package com.orange.resourcehotfix;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.TextView;
+
+import com.orange.resourcehotfix.networkmodel.FixModelFive;
+import com.orange.resourcehotfix.networkmodel.FixModelFour;
+import com.orange.resourcehotfix.networkmodel.FixModelOne;
+import com.orange.resourcehotfix.networkmodel.FixModelThree;
+import com.orange.resourcehotfix.networkmodel.FixModelTwo;
+import com.orange.resourcehotfix.networkmodel.LoginModel;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -13,5 +21,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initView();
+    }
+
+    private void initView(){
+        TextView fix_one = findViewById(R.id.fix_one);
+        TextView fix_two = findViewById(R.id.fix_two);
+        TextView fix_three = findViewById(R.id.fix_three);
+        TextView fix_four = findViewById(R.id.fix_four);
+        TextView fix_five = findViewById(R.id.fix_five);
+
+        fix_one.setText(new FixModelOne().getText());
+        fix_two.setText(new FixModelTwo().getText());
+        fix_three.setText(new FixModelThree().getText());
+        fix_four.setText(new FixModelFour().getText());
+        fix_five.setText(new FixModelFive().getText());
     }
 }
